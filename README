@@ -1,0 +1,45 @@
+FantaHadoop
+===========
+
+Questo programma consente di ottenere le statistiche aggregate dei giocatori di 
+una stagione del fantacalcio a partire dai dati delle singole partite tramite
+Apache Hadoop (è stato sviluppato con la versione 0.21 di Hadoop).
+
+I dati aggregati contengono, per ciascun giocatore:
+   0 - ruolo (P, D, C o A);
+   1 - totale voti;
+   2 - partite giocate (le partite senza voto vengono escluse);
+   3 - media voto per partita.
+
+
+
+Input
+-----
+
+I file di input sono disponibili sul sito http://www.voti-fantacalcio.it in 
+formato XLS (Microsoft Excel). Per scaricarli si può usare curl in questo modo:
+
+  curl 'http://www.voti-fantacalcio.it/2010-2011/voti-fantacalcio-[01-38]-giornata.xls' -o '#1.xls'
+
+Prima di darli in input al programma bisogna convertirli in formato CSV (i campi
+sono separati da una virgola), ad esempio usando LibreOffice (o OpenOffice):
+
+  for i in *.xls; do libreoffice -norestore -invisible -convert-to csv $i; sleep 1; done
+
+I file di input dovranno poi essere caricati sul filesystem di Hadoop. Supponendo
+di usare l'utente hduser, ad esempio, si può fare così:
+
+  hadoop fs -mkdir /home/hduser/fantahadoop-input
+  hadoop fs -put *.csv /home/hduser/fantahadoop-input
+
+
+
+Esecuzione
+----------
+
+Una volta caricati i dati di input, per usare FantaHadoop basta un comando del 
+genere:
+
+  hadoop jar FantaHadoop.jar pb.fantahadoop.Main /home/hduser/fantacalcio-input /home/hduser/fantacalcio-output
+
+Il risultato sarà un file CSV (sempre con i campi separati dalla virgola).
